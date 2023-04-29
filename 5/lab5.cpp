@@ -187,7 +187,7 @@ long handler::ProcL(void) {
 
 // Уровень II
 
-long handler::ProcM(void) { 
+long handler::ProcM(void) {
 	long x;
 	if (symb == '(') {
 		Get();
@@ -209,7 +209,7 @@ long handler::ProcM(void) {
 	return x;
 }
 
-long handler::ProcT(void) { 
+long handler::ProcT(void) {
 	long x = ProcM();
 	long tempX;
 	while (symb == '*' || symb == '/') {
@@ -270,7 +270,7 @@ void handler::ProcS(void) {
 	if (symb != ':')
 		Error(typeErrors::SYMBOL_MISS, ":");
 	Get();
-	if(symb != '=')
+	if (symb != '=')
 		Error(typeErrors::SYMBOL_MISS, "=");
 	Get();
 	while (symb == ' ')
@@ -291,7 +291,7 @@ void handler::ProcS(void) {
 void handler::Run(void) {
 	Get();
 	cout << "Begin parsing." << endl;
-	while(true) {
+	while (true) {
 		while (symb == ' ' || symb == '\n')
 			Get();
 		if (fin.eof())
@@ -309,46 +309,38 @@ void handler::Run(void) {
 
 void handler::Optimization(void) {
 	for (int i = 0; i < triads.size(); i++) {
-		bool flag = 1;
-		while (flag) {
-			if (triads[i].typeOperation != ":=" && triads[i].secondOperand[0] == '^') {
-				int tempIdTriad = stoi(triads[i].secondOperand.substr(1)) - 1; // получение номера триады, путем извлечения подстроки и преобразования ее в int
-				if (triads[tempIdTriad].typeOperation == "C") {
-					triads[i].secondOperand = triads[tempIdTriad].firstOperand;
-					triads[tempIdTriad].isDeleted = true;
-				}
-				else flag = 0;
+		if (triads[i].typeOperation != ":=" && triads[i].secondOperand[0] == '^') {
+			int tempIdTriad = stoi(triads[i].secondOperand.substr(1)) - 1; // получение номера триады, путем извлечения подстроки и преобразования ее в int
+			if (triads[tempIdTriad].typeOperation == "C") {
+				triads[i].secondOperand = triads[tempIdTriad].firstOperand;
+				triads[tempIdTriad].isDeleted = true;
 			}
-			else if (triads[i].typeOperation != ":=" && triads[i].firstOperand[0] == '^' && isdigit(triads[i].secondOperand[0])) {
-				int tempIdTriad = stoi(triads[i].firstOperand.substr(1)) - 1;
-				if (triads[tempIdTriad].typeOperation == "C") {
-					long result;
-					if (triads[i].typeOperation == "+")
-						result = stol(triads[tempIdTriad].firstOperand) + stol(triads[i].secondOperand);
-					else if (triads[i].typeOperation == "-")
-						result = stol(triads[tempIdTriad].firstOperand) - stol(triads[i].secondOperand);
-					else if (triads[i].typeOperation == "*")
-						result = stol(triads[tempIdTriad].firstOperand) * stol(triads[i].secondOperand);
-					else
-						result = stol(triads[tempIdTriad].firstOperand) / stol(triads[i].secondOperand);
-					triads[i].firstOperand = to_string(result);
-					triads[i].secondOperand = '@';
-					triads[i].typeOperation = "C";
-					triads[tempIdTriad].isDeleted = true;
-				}
-				else flag = 0;
-			}
-			else if (triads[i].typeOperation == ":=" && triads[i].firstOperand[0] == '^') {
-				int tempIdTriad = stoi(triads[i].firstOperand.substr(1)) - 1;
-				if (triads[tempIdTriad].firstOperand[0] != '^' && isdigit(triads[tempIdTriad].firstOperand[0]) == 0) {
-					triads[i].firstOperand = triads[tempIdTriad].firstOperand;
-					triads[tempIdTriad].isDeleted = true;
-				}
-				else flag = 0;
-			}
-			else flag = 0;
 		}
-		
+		if (triads[i].typeOperation != ":=" && triads[i].firstOperand[0] == '^' && isdigit(triads[i].secondOperand[0])) {
+			int tempIdTriad = stoi(triads[i].firstOperand.substr(1)) - 1;
+			if (triads[tempIdTriad].typeOperation == "C") {
+				long result;
+				if (triads[i].typeOperation == "+")
+					result = stol(triads[tempIdTriad].firstOperand) + stol(triads[i].secondOperand);
+				else if (triads[i].typeOperation == "-")
+					result = stol(triads[tempIdTriad].firstOperand) - stol(triads[i].secondOperand);
+				else if (triads[i].typeOperation == "*")
+					result = stol(triads[tempIdTriad].firstOperand) * stol(triads[i].secondOperand);
+				else
+					result = stol(triads[tempIdTriad].firstOperand) / stol(triads[i].secondOperand);
+				triads[i].firstOperand = to_string(result);
+				triads[i].secondOperand = '@';
+				triads[i].typeOperation = "C";
+				triads[tempIdTriad].isDeleted = true;
+			}
+		}
+		if (triads[i].typeOperation == ":=" && triads[i].firstOperand[0] == '^') {
+			int tempIdTriad = stoi(triads[i].firstOperand.substr(1)) - 1;
+			if (triads[tempIdTriad].firstOperand[0] != '^' && isdigit(triads[tempIdTriad].firstOperand[0]) == 0) {
+				triads[i].firstOperand = triads[tempIdTriad].firstOperand;
+				triads[tempIdTriad].isDeleted = true;
+			}
+		}
 	}
 }
 
